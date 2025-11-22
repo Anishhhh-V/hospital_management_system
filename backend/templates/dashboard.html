@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row">
+  <div class="col-md-8">
+    <h4>Dashboard</h4>
+    <p>Total beds: {{ stats.total_beds }} | Occupied: {{ stats.occupied }}</p>
+
+    <h4>Admit Patient</h4>
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+      Add Patient
+    </button>
+
+    <form method="POST" action="/admit" class="row g-3 mb-4">
+
+      <div class="col-md-4">
+        <label>Select Patient</label>
+        <select class="form-select" name="patient_id" required>
+          {% for p in patients %}
+          <option value="{{ p.patient_id }}">{{ p.name }} ({{ p.disease }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label>Select Doctor</label>
+        <select class="form-select" name="doctor_id" required>
+          {% for d in doctors %}
+          <option value="{{ d.doctor_id }}">{{ d.name }} ({{ d.speciality }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label>Select Free Bed</label>
+        <select class="form-select" name="bed_id" required>
+          {% for b in free_beds %}
+          <option value="{{ b.bed_id }}">Bed {{ b.bed_id }} - {{ b.ward }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-12">
+        <button class="btn btn-success mt-2">Admit</button>
+      </div>
+    </form>
+
+
+
+    <h5>Currently Admitted</h5>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Patient</th><th>Ward</th><th>Doctor</th><th>Admit</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in admissions %}
+        <tr>
+          <td>{{ a.patient }}</td>
+          <td>{{ a.ward }}</td>
+          <td>{{ a.doctor }}</td>
+          <td>{{ a.admit_time }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('discharge', admission_id=a.admission_id) }}">
+              <button class="btn btn-sm btn-danger">Discharge</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+
+
+  <div class="col-md-4">
+    <h5>Alerts <span id="alert-count" class="badge bg-danger">0</span></h5>
+    <ul id="alerts-list" class="list-group"></ul>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="addPatientModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Patient</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="POST" action="/add_patient">
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label>Name</label>
+            <input name="name" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label>Age</label>
+            <input name="age" type="number" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label>Disease</label>
+            <input name="disease" class="form-control" required>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-success">Add Patient</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
